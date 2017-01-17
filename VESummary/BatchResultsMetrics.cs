@@ -8,7 +8,8 @@ namespace TestSummarizer
 {
     public class BatchResultsMetrics : Metrics
     {
-        
+        private static readonly log4net.ILog log =
+log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         protected List<int> metrics = new List<int>();
         public string iterationNumber;
         private enum metricList {TOTAL_TEST_RUN, TOTAL_TESTS_FAILED, TOTAL_TESTS_PASSED, TOTAL_TESTS_NOT_RUN, TOTAL_OBSOLETE_TESTS, TOTAL_TESTS_NOT_SCRIPTED};
@@ -88,7 +89,7 @@ namespace TestSummarizer
                     continue;
                 }
             }
-            Console.WriteLine(resultsPath);
+            log.Info(resultsPath);
 
             // get the xls path.
             pathInProgress = false;
