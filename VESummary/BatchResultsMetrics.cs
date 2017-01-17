@@ -8,11 +8,11 @@ namespace TestSummarizer
 {
     public class BatchResultsMetrics : Metrics
     {
-        private static readonly log4net.ILog log =
-log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         protected List<int> metrics = new List<int>();
         public string iterationNumber;
         private enum metricList {TOTAL_TEST_RUN, TOTAL_TESTS_FAILED, TOTAL_TESTS_PASSED, TOTAL_TESTS_NOT_RUN, TOTAL_OBSOLETE_TESTS, TOTAL_TESTS_NOT_SCRIPTED};
+        private static readonly log4net.ILog log =
+log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public BatchResultsMetrics()
         {
@@ -22,18 +22,20 @@ log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().Dec
             bool result = false;
             StringBuilder sb;
 
+        log4net.Config.XmlConfigurator.Configure();
+
             isValid = true;
 
             if (null == (emailTextFile = FileOperations.GetFileName("batchSummaryFileName")))
             {
-                Console.WriteLine("Unable to find the batch summary file name.");
+                log.Error("Unable to find the batch summary file name.");
                 isValid = false;
                 return;
             }
 
             if (null == (tableTemplate = FileOperations.GetFileName("batchResultTableTemplate")))
             {
-                Console.WriteLine("Unable to find the batch summary file name.");
+                log.Error("Unable to find the batch summary file name.");
                 isValid = false;
                 return;
             }
@@ -53,7 +55,7 @@ log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().Dec
             // load summary email
             if ( null == (email = FileOperations.Load(emailTextFile)))
             {
-                Console.WriteLine("Unable to load the email file.");
+                log.Error("Unable to load the email file.");
                 isValid = false;
                 return;
             }
@@ -111,7 +113,7 @@ log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().Dec
                     continue;
                 }
             }
-            Console.WriteLine(xlsPath);
+            log.Info(xlsPath);
 
             // Update the build number.
             foreach (string line in email)
@@ -130,7 +132,7 @@ log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().Dec
 
             if ( false == result )
             {
-                Console.WriteLine("Could not find the build number.");
+                log.Error("Could not find the build number.");
                 isValid = false;
                 return;
             }
@@ -152,7 +154,7 @@ log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().Dec
 
             if (false == result)
             {
-                Console.WriteLine("Could not find the iteration number.");
+                log.Error("Could not find the iteration number.");
                 isValid = false;
                 return;
             }

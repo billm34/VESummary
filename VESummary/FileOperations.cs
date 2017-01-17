@@ -8,11 +8,17 @@ namespace TestSummarizer
 {
     public static class FileOperations
     {
+        private static readonly log4net.ILog log =
+log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+
         public static List<string> Load(string file)
         {
             List<string> content = new List<string>();
             string line;
             int i = 0;
+
+            log4net.Config.XmlConfigurator.Configure();
 
             try
             {   // Open the text file using a stream reader.
@@ -29,7 +35,7 @@ namespace TestSummarizer
             }
             catch (Exception e)
             {
-                Console.WriteLine("The file could not be read:" + e.Message);
+                log.Error("The file could not be read:" + e.Message);
                 return(null);
             }
         }
@@ -38,6 +44,9 @@ namespace TestSummarizer
         {
             FileStream fs = new FileStream(file,FileMode.OpenOrCreate);
             StreamWriter sw = new StreamWriter(fs, Encoding.Default);
+
+            log4net.Config.XmlConfigurator.Configure();
+
             try
             {
                 foreach (string line in content)
@@ -49,7 +58,7 @@ namespace TestSummarizer
             }
             catch(Exception e)
             {
-                Console.WriteLine("Unable to save the file: " + e.Message);
+                log.Error("Unable to save the file: " + e.Message);
                 return (false);
             }
             
@@ -60,6 +69,9 @@ namespace TestSummarizer
         public static bool Backup(string path)
         {
             string backupPath = Path.GetDirectoryName(path) +"\\" + Path.GetFileNameWithoutExtension(path) + ".orig";
+
+            log4net.Config.XmlConfigurator.Configure();
+
             try
             {
                 File.Copy(path, backupPath, true);
@@ -81,6 +93,8 @@ namespace TestSummarizer
             RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\willy", false);
             Object o;
 
+            log4net.Config.XmlConfigurator.Configure();
+
             if (key != null)
             {
                 o = key.GetValue(identifier);
@@ -90,13 +104,13 @@ namespace TestSummarizer
                 }
                 else
                 {
-                    Console.WriteLine("Couldn't find file.");
+                    log.Error("Couldn't find file.");
                     ;
                 }
             }
             else
             {
-                Console.WriteLine("Couldn't find file information registry key.");
+                log.Error("Couldn't find file information registry key.");
             }
             return(null);
         }

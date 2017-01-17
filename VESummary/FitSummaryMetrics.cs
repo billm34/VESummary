@@ -17,6 +17,8 @@ namespace TestSummarizer
     public class FitSummaryMetrics : Metrics
     {
         public FitSummary infrequentFit, fit, tcFit, nightlyFit, summaryFit;
+        private static readonly log4net.ILog log =
+log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public struct FitSummary
             {
@@ -33,6 +35,8 @@ namespace TestSummarizer
             List<string> contents;
             RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\willy", false);
 
+            log4net.Config.XmlConfigurator.Configure();
+
             isValid = true;
             if (key != null)
             {
@@ -43,7 +47,7 @@ namespace TestSummarizer
                 }
                 else
                 {
-                    Console.WriteLine("Couldn't find input file.");
+                    log.Error("Couldn't find input file.");
                     isValid = false;
                     return;
                 }
@@ -55,14 +59,14 @@ namespace TestSummarizer
                 }
                 else
                 {
-                    Console.WriteLine("Couldn't find output file name.");
+                    log.Error("Couldn't find output file name.");
                     isValid = false;
                     return;
                 }
             }
             else
             {
-                Console.WriteLine("Couldn't find file information registry key.");
+                log.Error("Couldn't find file information registry key.");
                 isValid = false;
                 return;
             }
@@ -91,7 +95,7 @@ namespace TestSummarizer
             // populate the infrequent fit metrics.
             if (!UpdateMetrics("Infrequent Fit", contents, ref infrequentFit))
             {
-                Console.WriteLine("Unable to update the metric.");
+                log.Error("Unable to update the metric.");
                 isValid = false;
                 return;
             }
@@ -99,7 +103,7 @@ namespace TestSummarizer
             // populate the fit metrics.
             if ( !UpdateMetrics("Fit", contents, ref fit))
             {
-                Console.WriteLine("Unable to update the metric.");
+                log.Error("Unable to update the metric.");
                 isValid = false;
                 return;
             }
@@ -107,7 +111,7 @@ namespace TestSummarizer
             // populate the TC Fit metrics.
             if (!UpdateMetrics("TC Fit", contents, ref tcFit))
             {
-                Console.WriteLine("Unable to update the metric.");
+                log.Error("Unable to update the metric.");
                 isValid = false;
                 return;
             }
@@ -115,7 +119,7 @@ namespace TestSummarizer
             // populate the Nightly Fit metrics.
             if (!UpdateMetrics("Nightly Fit", contents, ref nightlyFit))
             {
-                Console.WriteLine("Unable to update the metric.");
+                log.Error("Unable to update the metric.");
                 isValid = false;
                 return;
             }
@@ -123,7 +127,7 @@ namespace TestSummarizer
             // populate the Summary Fit metrics.
             if (!UpdateMetrics("All Tests Summary", contents, ref summaryFit))
             {
-                Console.WriteLine("Unable to update the metric.");
+                log.Error("Unable to update the metric.");
                 isValid = false;
                 return;
             }
@@ -243,7 +247,7 @@ namespace TestSummarizer
 
             if (metrics.Count == 0)
             {
-                Console.WriteLine("ERROR: Unable to get the fit metrics from: " + emailTextFile);
+                log.Error("Unable to get the fit metrics from: " + emailTextFile);
                 return(false);
             }
 

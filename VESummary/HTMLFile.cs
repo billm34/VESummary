@@ -10,6 +10,14 @@ namespace TestSummarizer
 {
     public class DisplayFile
     {
+        private static readonly log4net.ILog log =
+log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        public DisplayFile()
+            {
+            log4net.Config.XmlConfigurator.Configure();
+            }
+
         // ClearTable: deletes the content between the start and end tags to prepare for new data.
         public bool ClearTable()
         {
@@ -24,7 +32,7 @@ namespace TestSummarizer
 
             if ( null == tag || null == searchList )
             {
-                Console.WriteLine("Bad data passed to find the tag.");
+                log.Error("Bad data passed to find the tag.");
                 return (-1);
             }
 

@@ -12,12 +12,16 @@ namespace TestSummarizer
         private int batchTableInsertLine;
         private int fitTableInsertLine;
         private enum tables { FIT_STATUS_TABLE, BATCH_RESULTS_TABLE };
+        private static readonly log4net.ILog log =
+log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //--[ public methods ]-------------------------------------------------
 
         public SummaryHtml()
         {
             RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\willy",false);
+
+            log4net.Config.XmlConfigurator.Configure();
 
             if ( key != null )
             {
@@ -28,7 +32,7 @@ namespace TestSummarizer
                 }
                 else
                 {
-                    Console.WriteLine("Couldn't find input file.");
+                    log.Error("Couldn't find input file.");
                     return;
                 }
 
@@ -39,13 +43,13 @@ namespace TestSummarizer
                 }
                 else
                 {
-                    Console.WriteLine("Couldn't find output file name.");
+                    log.Error("Couldn't find output file name.");
                     return;
                 }
             }
             else
             {
-                Console.WriteLine("Couldn't find file information registry key.");
+                log.Error("Couldn't find file information registry key.");
             }
         }
 
@@ -75,13 +79,13 @@ namespace TestSummarizer
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unable to clear the file: " + e.Message);
+                log.Error("Unable to clear the file: " + e.Message);
                 return (false);
             }
 
             if ( !FileOperations.Save(outputFileName, contents) )
             {
-                Console.WriteLine("Unable to save the file.");
+                log.Error("Unable to save the file.");
                 return (false);
             }
 
@@ -126,28 +130,28 @@ namespace TestSummarizer
             // Determine if an update is availiable
             if ( !this.IsBatchResultsUpdateAvailable(brm) )
             {
-                Console.WriteLine("No batch results update available.");
+                log.Info("No batch results update available.");
                 return(false);
             }
 
             // make sure we have a valid set of batch result metrics.
             if ( !brm.Validate() )
             {
-                Console.WriteLine("No valid metrics to update.");
+                log.Error("No valid metrics to update.");
                 return (false);
             }
 
             // clear the old table
             if ( !this.ClearBatchResultsTable() )
             {
-                Console.WriteLine("Unable to clear the batch results table.");
+                log.Error("Unable to clear the batch results table.");
                 return (false);
             }
 
             table = brm.GetTableTemplate();
             if ( null == table )
             {
-                Console.WriteLine("Unable to get the table template.");
+                log.Error("Unable to get the table template.");
                 return (false);
             }
             table.Reverse();
@@ -159,77 +163,77 @@ namespace TestSummarizer
             // add the iteration number
             if (!UpdateTag("<!-- TAG: Batch Results Iteration Number -->", brm.GetIterationNumber(), contents))
             {
-                Console.WriteLine("Unable to add the iteration number.");
+                log.Error("Unable to add the iteration number.");
                 return (false);
             }
 
             // add the last updated date.
             if (!UpdateTag("<!-- TAG: Batch Results Updated Date -->", brm.GetCurrentDate(), contents))
             {
-                Console.WriteLine("Unable to add the updated date.");
+                log.Error("Unable to add the updated date.");
                 return (false);
             }
 
             // Add the build number.
             if (!UpdateTag("<!-- TAG: Batch Results Build Number -->", brm.GetBuildNumber(), contents))
             {
-                Console.WriteLine("Unable to add the build number.");
+                log.Error("Unable to add the build number.");
                 return (false);
             }
 
             // Add the total test run.
             if (!UpdateTag("<!-- TAG: Batch Results Total Test Run -->", brm.GetTotalTestRun().ToString(), contents))
             {
-                Console.WriteLine("Unable to add the total test run.");
+                log.Error("Unable to add the total test run.");
                 return (false);
             }
 
             // add total failed
             if (!UpdateTag("<!-- TAG: Batch Results Tests Failed -->", brm.GetTotalFailedTests().ToString(), contents))
             {
-                Console.WriteLine("Unable to add the total test failed.");
+                log.Error("Unable to add the total test failed.");
                 return (false);
             }
 
             // add total passed
             if (!UpdateTag("<!-- TAG: Batch Results Tests Passed -->", brm.GetTotalPassedTests().ToString(), contents))
             {
-                Console.WriteLine("Unable to add the total passed.");
+                log.Error("Unable to add the total passed.");
                 return (false);
             }
 
             // add total not run
             if ( !UpdateTag("<!-- TAG: Batch Results Tests Not Run -->", brm.GetTotalTestsNotRun().ToString(), contents) )
             {
-                Console.WriteLine("Unable to add the total tests not run.");
+                log.Error("Unable to add the total tests not run.");
                 return (false);
             }
             
             // add total obsolete tests
             if (!UpdateTag("<!-- TAG: Batch Results Obsolete Tests -->", brm.GetTotalObsoleteTests().ToString(), contents))
             {
-                Console.WriteLine("Unable to add the total obsolete tests.");
+                log.Error("Unable to add the total obsolete tests.");
                 return (false);
             }
 
             // add total tests not scripted
             if (!UpdateTag("<!-- TAG: Batch Results Tests Not Scripted -->", brm.GetTotalTestsNotScripted().ToString(), contents))
             {
-                Console.WriteLine("Unable to add the total tests not scripted.");
+                log.Error("Unable to add the total tests not scripted.");
                 return (false);
             }
 
             // add the XLS results path
             if (!UpdateTag("<!-- TAG: Batch Results xls Path -->", brm.GetXlsPath(), contents))
             {
-                Console.WriteLine("Unable to add the XLS path.");
+                log.Error("Unable to add the XLS path.");
                 return (false);
             }
 
             // add the results path
             if (!UpdateTag("<!-- TAG: Batch Results Results Path -->", brm.GetResultsPath(), contents))
             {
-                Console.WriteLine("Unable to add the results path.");
+                log.Error("Unable to add the results path.");
                 return (false);
             }
 
@@ -328,7 +332,7 @@ namespace TestSummarizer
             finishLine = FindTag(finishTag, contents);
             if ((0 == startLine) || (-1 == finishLine))
             {
-                Console.WriteLine("Didn't find one of the tags in range: {0}, {1} ", startLine, finishLine);
+                log.Error("Didn't find one of the tags in range: " + startLine + " " + finishLine);
                 return (false);
             }
 
@@ -356,13 +360,13 @@ namespace TestSummarizer
 
             if ( null == content )
             {
-                Console.WriteLine("Nothing to update.");
+                log.Error("Nothing to update.");
                 return (false);
             }
 
             if (-1 == target)
             {
-                Console.WriteLine("ERROR: Unable to find the Summary Fit metrics");
+                log.Error("Unable to find the Summary Fit metrics");
                 return(false);
             }
 
